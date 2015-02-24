@@ -1,4 +1,4 @@
-package fpinscala.datastructures
+//package fpinscala.datastructures
 
 sealed trait List[+A] // `List` data type, parameterized on a type, `A`
 case object Nil extends List[Nothing] // A `List` data constructor representing the empty list
@@ -47,17 +47,61 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  def tail[A](l: List[A]): List[A] = {
+    l match {
+      case Nil => sys.error("trying to get tail of empty List")
+      case Cons(_, t) => t
+    }
+  }
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  def setHead[A](l: List[A], h: A): List[A] = {
+    l match {
+      case Nil => sys.error("trying to set head of empty List")
+      case Cons(_, t) => Cons(h, t)
+    }
+  }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
+  def drop[A](l: List[A], n: Int): List[A] = {
+    l match {
+      case Nil => Nil
+      case Cons(_, t) if n > 1 => drop(t, n-1)
+      case Cons(_, t) => t
+    }
+  }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+//  exercise 3.5
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
+    l match {
+      case Nil => Nil
+      case Cons(h, t) if f(h) => dropWhile(t, f)
+      case Cons(_, t) => t
+    }
+  }
+//  scala> dropWhile[Int](List(1,2,3,-4,5),(x:Int) => x > 0)
+//  res21: List[Int] = Cons(5,Nil)
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+//  exercise 3.6
+  def init[A](l: List[A]): List[A] = {
+    def compose(rl: List[A], il: List[A]): List[A] = {
+      rl match {
+        case Cons(h, Nil) => il
+        case Cons(h, t) => compose(t, append(il, List(h)))
+      }
+    }
+    compose(l, List())
+  }
 
-  def length[A](l: List[A]): Int = sys.error("todo")
+//  exercise 3.7, will re-visit in Chapter 5
+//  Note: function 'f' will be evalutated firstly and traverse all the way to the end of the list.
+//  So it can't be terminated earlier when foldRight() is called.
+//  We need to inspect the list firstly before calling foldRight for early termination.
+  def product3(ns: List[Double]): Double = ns match {
+    case Cons(0.0, xs) => 0.0
+    case _ => foldRight(ns, 1.0)(_ * _)
+  }
+
+//  exercise 3.8
+  def length[A](l: List[A]): Int = foldRight(l, 0)((_, count) => count + 1)
 
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
 
